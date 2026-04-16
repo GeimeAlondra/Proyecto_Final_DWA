@@ -18,7 +18,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegisterActivity"/>
-        <activity android:name=".DashboardActivity"/>
+        <activity android:name=".DashboardAdminActivity"/>
+        <activity android:name=".DashboardEmpleadoActivity"/>
     </application>
 
 </manifest>

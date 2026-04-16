@@ -2,17 +2,17 @@ package com.example.proyecto_final_dwa
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
-import android.widget.Toast.makeText
 import androidx.appcompat.app.AppCompatActivity
-import com.example.proyecto_final_dwa.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.example.proyecto_final_dwa.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,10 +20,11 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
-        // Si ya hay sesión activa, ir directo al Dashboard
-        if (auth.currentUser != null) {
-            goToDashboard()
+        // Si ya hay sesión activa, redirigir directo por rol
+        auth.currentUser?.let {
+            redirigirPorRol(it.uid)
             return
         }
 
@@ -31,7 +32,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -42,13 +42,14 @@ class LoginActivity : AppCompatActivity() {
 
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
-                    setLoading(false)
                     if (task.isSuccessful) {
-                        goToDashboard()
+                        val uid = auth.currentUser!!.uid
+                        redirigirPorRol(uid)
                     } else {
-                        makeText(
+                        setLoading(false)
+                        Toast.makeText(
                             this,
-                            "Error: ${task.exception?.message}",
+                            "Credenciales incorrectas",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -60,15 +61,42 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun redirigirPorRol(uid: String) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                setLoading(false)
+                when (doc.getString("rol")) {
+                    "admin" -> {
+                        startActivity(Intent(this, DashboardAdminActivity::class.java))
+                        finish()
+                    }
+                    "empleado" -> {
+                        startActivity(Intent(this, DashboardEmpleadoActivity::class.java))
+                        finish()
+                    }
+                    else -> {
+                        // Rol desconocido o documento no existe
+                        auth.signOut()
+                        Toast.makeText(
+                            this,
+                            "Usuario sin rol asignado. Contacta al administrador.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                setLoading(false)
+                Toast.makeText(this, "Error al obtener perfil: ${it.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
     private fun validateFields(email: String, password: String): Boolean {
         var isValid = true
-
         if (email.isEmpty()) {
             binding.tilEmail.error = "Ingresa tu correo"
             isValid = false
-        } else {
-            binding.tilEmail.error = null
-        }
+        } else binding.tilEmail.error = null
 
         if (password.isEmpty()) {
             binding.tilPassword.error = "Ingresa tu contraseña"
@@ -76,20 +104,13 @@ class LoginActivity : AppCompatActivity() {
         } else if (password.length < 6) {
             binding.tilPassword.error = "Mínimo 6 caracteres"
             isValid = false
-        } else {
-            binding.tilPassword.error = null
-        }
+        } else binding.tilPassword.error = null
 
         return isValid
     }
 
     private fun setLoading(isLoading: Boolean) {
         binding.btnLogin.isEnabled = !isLoading
-        binding.btnLogin.text = if (isLoading) "Ingresando..." else "Ingresar"
-    }
-
-    private fun goToDashboard() {
-        startActivity(Intent(this, DashboardActivity::class.java))
-        finish()
+        binding.btnLogin.text = if (isLoading) "Verificando..." else "Ingresar"
     }
 }

@@ -45,8 +45,9 @@ class DashboardAdminActivity : AppCompatActivity() {
 
     private fun setupCards() {
         binding.cardProductos.setOnClickListener {
-            // startActivity(Intent(this, ProductosActivity::class.java))
-            Toast.makeText(this, "Próximamente: Productos", Toast.LENGTH_SHORT).show()
+            binding.cardProductos.setOnClickListener {
+                startActivity(Intent(this, ProductoActivity::class.java))
+            }
         }
         binding.cardMesas.setOnClickListener {
             // startActivity(Intent(this, MesasActivity::class.java))

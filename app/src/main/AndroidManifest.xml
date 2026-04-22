@@ -11,9 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Proyecto_Final_DWA">
-        <activity
-            android:name=".MesaActivity"
-            android:exported="false" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -28,6 +26,10 @@
         <activity android:name=".DashboardEmpleadoActivity" />
         <activity android:name=".ProductoActivity" />
         <activity android:name=".ProductoForm" />
+        <activity android:name=".MesaActivity"/>
+        <activity android:name=".MesaForm"/>
+        <activity android:name=".EmpleadoActivity"/>
+        <activity android:name=".EmpleadoForm"/>
     </application>
 
 </manifest>

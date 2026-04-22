@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,6 +25,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBack"
+                style="@Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="‹"
@@ -41,7 +43,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MESAS"
+                    android:text="EMPLEADOS"
                     android:textColor="@color/warm_gray"
                     android:textSize="11sp"
                     android:letterSpacing="0.2"/>
@@ -50,7 +52,7 @@
                     android:id="@+id/tvTituloForm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nueva Mesa"
+                    android:text="Nuevo Empleado"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
@@ -66,50 +68,68 @@
             android:paddingTop="28dp"
             android:paddingBottom="32dp">
 
-            <!-- Número de mesa -->
+            <!-- Nombre -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilNumero"
+                android:id="@+id/tilNombre"
                 style="@style/RestaurantInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Número de mesa"
+                android:hint="Nombre completo"
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etNumero"
+                    android:id="@+id/etNombre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:inputType="textPersonName"
                     android:textColor="@color/charcoal"
                     android:textSize="15sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Capacidad -->
+            <!-- Email -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCapacidad"
+                android:id="@+id/tilEmail"
                 style="@style/RestaurantInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Capacidad (personas)"
+                android:hint="Correo electrónico"
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCapacidad"
+                    android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:inputType="textEmailAddress"
                     android:textColor="@color/charcoal"
                     android:textSize="15sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Estado -->
+            <!-- Teléfono -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilEstado"
+                android:id="@+id/tilTelefono"
+                style="@style/RestaurantInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Teléfono"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTelefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:textColor="@color/charcoal"
+                    android:textSize="15sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Puesto -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPuesto"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Estado"
-                android:layout_marginBottom="32dp"
+                android:hint="Puesto"
+                android:layout_marginBottom="20dp"
                 app:boxStrokeColor="@color/gold"
                 app:hintTextColor="@color/gold"
                 app:boxCornerRadiusTopStart="8dp"
@@ -118,7 +138,7 @@
                 app:boxCornerRadiusBottomEnd="8dp">
 
                 <AutoCompleteTextView
-                    android:id="@+id/spinnerEstado"
+                    android:id="@+id/spinnerPuesto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -126,12 +146,53 @@
                     android:textSize="15sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/white"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="32dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Empleado activo"
+                        android:textColor="@color/charcoal"
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Puede iniciar sesión en el sistema"
+                        android:textColor="@color/warm_gray"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchActivo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:trackTint="@color/gold"
+                    app:thumbTint="@color/white"/>
+            </LinearLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardar"
                 style="@style/RestaurantButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Guardar mesa"/>
+                android:text="Guardar Empleado"/>
 
         </LinearLayout>
     </LinearLayout>

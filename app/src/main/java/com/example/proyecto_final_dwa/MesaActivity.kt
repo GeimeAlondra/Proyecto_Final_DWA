@@ -7,8 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.proyecto_final_dwa.databinding.ActivityMesaBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.proyecto_final_dwa.databinding.ActivityMesaBinding
 
 class MesaActivity : AppCompatActivity() {
 
@@ -31,7 +31,7 @@ class MesaActivity : AppCompatActivity() {
         setupFiltros()
 
         binding.fabAgregar.setOnClickListener {
-            startActivity(Intent(this, ActivityMesaBinding::class.java))
+            startActivity(Intent(this, MesaForm::class.java))
         }
         binding.btnBack.setOnClickListener { finish() }
     }
@@ -40,7 +40,7 @@ class MesaActivity : AppCompatActivity() {
         adapter = MesaAdapter(
             listaFiltrada,
             onEditar = { mesa ->
-                val intent = Intent(this, ActivityMesaBinding::class.java)
+                val intent = Intent(this, MesaForm::class.java)
                 intent.putExtra("mesaId", mesa.id)
                 intent.putExtra("numero", mesa.numero)
                 intent.putExtra("capacidad", mesa.capacidad)

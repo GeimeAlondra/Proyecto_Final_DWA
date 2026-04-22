@@ -11,7 +11,7 @@ class ProductoForm : AppCompatActivity() {
 
     private lateinit var binding: FormProductoBinding
     private lateinit var db: FirebaseFirestore
-    private var productoId: String? = null // null = crear, con valor = editar
+    private var productoId: String? = null
 
     private val categorias = listOf(
         "Entradas", "Sopas", "Platos fuertes", "Postres",
@@ -95,7 +95,7 @@ class ProductoForm : AppCompatActivity() {
             db.collection("productos").add(datos)
                 .addOnSuccessListener {
                     setLoading(false)
-                    Toast.makeText(this, "Producto agregado ✓", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Producto agregado", Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 .addOnFailureListener {
@@ -108,7 +108,7 @@ class ProductoForm : AppCompatActivity() {
                 .update(datos as Map<String, Any>)
                 .addOnSuccessListener {
                     setLoading(false)
-                    Toast.makeText(this, "Producto actualizado ✓", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Producto actualizado", Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 .addOnFailureListener {

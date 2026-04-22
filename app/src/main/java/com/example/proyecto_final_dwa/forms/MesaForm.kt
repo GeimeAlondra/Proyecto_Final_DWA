@@ -38,11 +38,11 @@ class MesaForm : AppCompatActivity() {
     private fun cargarDatosEdicion() {
         mesaId = intent.getStringExtra("mesaId")
         if (mesaId != null) {
-            binding.tvTituloForm.text = "Editar Mesa"
+            binding.tvTituloForm.text = "Editar mesa"
             binding.etNumero.setText(intent.getIntExtra("numero", 0).toString())
             binding.etCapacidad.setText(intent.getIntExtra("capacidad", 0).toString())
             binding.spinnerEstado.setText(intent.getStringExtra("estado"), false)
-            binding.btnGuardar.text = "Actualizar Mesa"
+            binding.btnGuardar.text = "Actualizar mesa"
         }
     }
 
@@ -94,12 +94,12 @@ class MesaForm : AppCompatActivity() {
                 .addOnSuccessListener { docs ->
                     if (!docs.isEmpty) {
                         setLoading(false)
-                        binding.tilNumero.error = "Ya existe una Mesa $numero"
+                        binding.tilNumero.error = "Ya existe una mesa $numero"
                     } else {
                         db.collection("mesas").add(datos)
                             .addOnSuccessListener {
                                 setLoading(false)
-                                Toast.makeText(this, "Mesa $numero creada ✓", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Mesa $numero creada", Toast.LENGTH_SHORT).show()
                                 finish()
                             }
                             .addOnFailureListener {
@@ -113,7 +113,7 @@ class MesaForm : AppCompatActivity() {
                 .update(datos as Map<String, Any>)
                 .addOnSuccessListener {
                     setLoading(false)
-                    Toast.makeText(this, "Mesa actualizada ✓", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Mesa actualizada", Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 .addOnFailureListener {
@@ -126,6 +126,6 @@ class MesaForm : AppCompatActivity() {
     private fun setLoading(isLoading: Boolean) {
         binding.btnGuardar.isEnabled = !isLoading
         binding.btnGuardar.text = if (isLoading) "Guardando..."
-        else if (mesaId == null) "Guardar Mesa" else "Actualizar Mesa"
+        else if (mesaId == null) "Guardar mesa" else "Actualizar mesa"
     }
 }

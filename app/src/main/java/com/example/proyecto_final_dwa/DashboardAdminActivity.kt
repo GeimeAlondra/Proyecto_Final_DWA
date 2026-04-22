@@ -50,12 +50,10 @@ class DashboardAdminActivity : AppCompatActivity() {
             }
         }
         binding.cardMesas.setOnClickListener {
-            // startActivity(Intent(this, MesasActivity::class.java))
-            Toast.makeText(this, "Próximamente: Mesas", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, MesaActivity::class.java))
         }
         binding.cardEmpleados.setOnClickListener {
-            // startActivity(Intent(this, EmpleadosActivity::class.java))
-            Toast.makeText(this, "Próximamente: Empleados", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, EmpleadoActivity::class.java))
         }
     }
 

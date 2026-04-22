@@ -57,10 +57,10 @@ class DashboardEmpleadoActivity : AppCompatActivity() {
 
     private fun setupCards() {
         binding.cardNuevoPedido.setOnClickListener {
-            // startActivity(Intent(this, NuevoPedidoActivity::class.java))
+            startActivity(Intent(this, NuevoPedidoActivity::class.java))
         }
         binding.cardPedidosActivos.setOnClickListener {
-            // startActivity(Intent(this, PedidosActivosActivity::class.java))
+            startActivity(Intent(this, PedidosActivosActivity::class.java))
         }
     }
 

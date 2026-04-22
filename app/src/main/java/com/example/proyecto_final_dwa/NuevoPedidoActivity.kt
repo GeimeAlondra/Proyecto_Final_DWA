@@ -107,6 +107,7 @@ class NuevoPedidoActivity : AppCompatActivity() {
     }
 
     private fun setupTipoPedido() {
+        // Mesa seleccionado por defecto
         seleccionarTipo("mesa")
 
         binding.btnTipoMesa.setOnClickListener { seleccionarTipo("mesa") }
@@ -166,7 +167,6 @@ class NuevoPedidoActivity : AppCompatActivity() {
     }
 
     private fun confirmarPedido() {
-        // Validar items
         val items = listaProductos
             .filter { (cantidades[it.id] ?: 0) > 0 }
             .map { producto ->

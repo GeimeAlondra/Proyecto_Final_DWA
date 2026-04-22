@@ -12,12 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Proyecto_Final_DWA">
         <activity
-            android:name=".NuevoPedidoActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PedidoActivity"
-            android:exported="false" />
-        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
@@ -35,6 +29,8 @@
         <activity android:name=".MesaForm" />
         <activity android:name=".EmpleadoActivity" />
         <activity android:name=".EmpleadoForm" />
+        <activity android:name=".NuevoPedidoActivity"/>
+        <activity android:name=".PedidosActivosActivity"/>
     </application>
 
 </manifest>

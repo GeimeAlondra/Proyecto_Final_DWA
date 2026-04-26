@@ -23,14 +23,18 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="25dp"
+                android:layout_height="45dp"
                 android:text="‹"
                 android:textColor="@color/gold"
-                android:textSize="28sp"
+                android:textSize="20sp"
                 android:minWidth="0dp"
+                android:minHeight="0dp"
                 android:paddingHorizontal="0dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="12dp"
+                app:strokeColor="@color/gold"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -337,15 +341,42 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botón confirmar-->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnConfirmar"
-        style="@style/RestaurantButton"
+    <!-- Botones fijos abajo -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_gravity="bottom"
-        android:layout_margin="20dp"
-        android:text="Confirmar Pedido"
-        app:elevation="6dp"/>
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="20dp"
+        android:paddingTop="12dp"
+        android:background="@color/cream">
+
+        <!-- Cancelar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Cancelar"
+            android:textColor="@color/charcoal"
+            app:strokeColor="@color/charcoal"
+            app:strokeWidth="1dp"
+            app:cornerRadius="8dp"/>
+
+        <!-- Confirmar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            app:strokeWidth="1dp"
+            app:cornerRadius="8dp"
+            android:text="Confirmar Pedido"/>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

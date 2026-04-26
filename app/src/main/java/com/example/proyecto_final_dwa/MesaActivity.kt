@@ -56,7 +56,6 @@ class MesaActivity : AppCompatActivity() {
                     .show()
             }
         )
-        // Grid de 2 columnas — visual de salón
         binding.recyclerMesas.layoutManager = GridLayoutManager(this, 2)
         binding.recyclerMesas.adapter = adapter
     }
@@ -86,7 +85,6 @@ class MesaActivity : AppCompatActivity() {
         binding.chipTodas.setOnClickListener { filtroActual = "todas"; aplicarFiltro() }
         binding.chipLibres.setOnClickListener { filtroActual = "libre"; aplicarFiltro() }
         binding.chipOcupadas.setOnClickListener { filtroActual = "ocupada"; aplicarFiltro() }
-        binding.chipReservadas.setOnClickListener { filtroActual = "reservada"; aplicarFiltro() }
     }
 
     private fun aplicarFiltro() {

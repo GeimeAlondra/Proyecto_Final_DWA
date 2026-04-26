@@ -13,7 +13,7 @@ class MesaForm : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private var mesaId: String? = null
 
-    private val estados = listOf("libre", "ocupada", "reservada")
+    private val estados = listOf("libre", "ocupada")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,17 +22,10 @@ class MesaForm : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
 
-        setupEstados()
         cargarDatosEdicion()
 
         binding.btnGuardar.setOnClickListener { guardar() }
         binding.btnBack.setOnClickListener { finish() }
-    }
-
-    private fun setupEstados() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, estados)
-        binding.spinnerEstado.setAdapter(adapter)
-        binding.spinnerEstado.setText("libre", false) // default
     }
 
     private fun cargarDatosEdicion() {
@@ -41,7 +34,6 @@ class MesaForm : AppCompatActivity() {
             binding.tvTituloForm.text = "Editar mesa"
             binding.etNumero.setText(intent.getIntExtra("numero", 0).toString())
             binding.etCapacidad.setText(intent.getIntExtra("capacidad", 0).toString())
-            binding.spinnerEstado.setText(intent.getStringExtra("estado"), false)
             binding.btnGuardar.text = "Actualizar mesa"
         }
     }
@@ -49,7 +41,6 @@ class MesaForm : AppCompatActivity() {
     private fun guardar() {
         val numeroStr = binding.etNumero.text.toString().trim()
         val capacidadStr = binding.etCapacidad.text.toString().trim()
-        val estado = binding.spinnerEstado.text.toString().trim()
 
         if (numeroStr.isEmpty()) {
             binding.tilNumero.error = "Ingresa el número"
@@ -73,21 +64,9 @@ class MesaForm : AppCompatActivity() {
             return
         } else binding.tilCapacidad.error = null
 
-        if (estado.isEmpty() || !estados.contains(estado)) {
-            binding.tilEstado.error = "Selecciona un estado"
-            return
-        } else binding.tilEstado.error = null
-
         setLoading(true)
 
-        val datos = hashMapOf(
-            "numero" to numero,
-            "capacidad" to capacidad,
-            "estado" to estado
-        )
-
         if (mesaId == null) {
-            // Verificar que el número no esté repetido
             db.collection("mesas")
                 .whereEqualTo("numero", numero)
                 .get()
@@ -96,6 +75,11 @@ class MesaForm : AppCompatActivity() {
                         setLoading(false)
                         binding.tilNumero.error = "Ya existe una mesa $numero"
                     } else {
+                        val datos = hashMapOf(
+                            "numero" to numero,
+                            "capacidad" to capacidad,
+                            "estado" to "libre"
+                        )
                         db.collection("mesas").add(datos)
                             .addOnSuccessListener {
                                 setLoading(false)
@@ -109,8 +93,12 @@ class MesaForm : AppCompatActivity() {
                     }
                 }
         } else {
+            val datos = mapOf(
+                "numero" to numero,
+                "capacidad" to capacidad
+            )
             db.collection("mesas").document(mesaId!!)
-                .update(datos as Map<String, Any>)
+                .update(datos)
                 .addOnSuccessListener {
                     setLoading(false)
                     Toast.makeText(this, "Mesa actualizada", Toast.LENGTH_SHORT).show()

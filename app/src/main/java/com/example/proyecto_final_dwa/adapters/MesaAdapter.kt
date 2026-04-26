@@ -31,7 +31,6 @@ class MesaAdapter(
             // Color y texto según estado
             val (textoEstado, colorFondo, colorTexto) = when (mesa.estado) {
                 "ocupada"   -> Triple("Ocupada",   R.color.error_red,      R.color.white)
-                "reservada" -> Triple("Reservada", R.color.green, R.color.white)
                 else        -> Triple("Libre",     R.color.gold,           R.color.white)
             }
 
@@ -39,7 +38,6 @@ class MesaAdapter(
             tvEstado.setBackgroundResource(
                 when (mesa.estado) {
                     "ocupada"   -> R.drawable.badge_rojo
-                    "reservada" -> R.drawable.badge_verde
                     else        -> R.drawable.badge_gold
                 }
             )
@@ -49,7 +47,6 @@ class MesaAdapter(
             tvNumeroMesa.setBackgroundResource(
                 when (mesa.estado) {
                     "ocupada"   -> R.drawable.circle_rojo
-                    "reservada" -> R.drawable.circle_verde
                     else        -> R.drawable.circle_gold
                 }
             )

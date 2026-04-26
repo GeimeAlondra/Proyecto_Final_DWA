@@ -45,13 +45,18 @@ class DashboardEmpleadoActivity : AppCompatActivity() {
 
     private fun cargarContadorPedidos() {
         val uid = auth.currentUser?.uid ?: return
-        // Cuenta pedidos activos asignados a este empleado
+
         db.collection("pedidos")
             .whereEqualTo("empleadoId", uid)
-            .whereEqualTo("estado", "pendiente")
-            .get()
-            .addOnSuccessListener { docs ->
-                binding.tvContadorPedidos.text = docs.size().toString()
+            .whereIn("estado", listOf("pendiente", "entregado"))
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+                val count = snapshot?.documents
+                    ?.filter {
+                        val estado = it.getString("estado") ?: ""
+                        estado == "pendiente" || estado == "entregado"
+                    }?.size ?: 0
+                binding.tvContadorPedidos.text = count.toString()
             }
     }
 

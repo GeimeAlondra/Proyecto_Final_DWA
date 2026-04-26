@@ -1,9 +1,11 @@
 package com.example.proyecto_final_dwa
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.Timestamp
@@ -43,6 +45,19 @@ class NuevoPedidoActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
         binding.btnConfirmar.setOnClickListener { confirmarPedido() }
+        binding.btnCancelar.setOnClickListener {
+            val hayItems = cantidades.values.any { it > 0 }
+            if (hayItems) {
+                AlertDialog.Builder(this)
+                    .setTitle("Cancelar pedido")
+                    .setMessage("¿Descartar los items seleccionados?")
+                    .setPositiveButton("Descartar") { _, _ -> finish() }
+                    .setNegativeButton("Continuar", null)
+                    .show()
+            } else {
+                finish()
+            }
+        }
     }
 
     private fun setupRecyclers() {
@@ -59,50 +74,74 @@ class NuevoPedidoActivity : AppCompatActivity() {
 
     private fun cargarProductos() {
         db.collection("productos")
-            .whereEqualTo("disponible", true)
-            .orderBy("nombre")
             .get()
             .addOnSuccessListener { snapshot ->
+                Log.d("PEDIDO", "Total docs productos: ${snapshot.size()}")
                 listaProductos.clear()
                 snapshot.documents.forEach { doc ->
-                    listaProductos.add(
-                        Producto(
-                            id = doc.id,
-                            nombre = doc.getString("nombre") ?: "",
-                            precio = doc.getDouble("precio") ?: 0.0,
-                            categoria = doc.getString("categoria") ?: "",
-                            disponible = true
+                    Log.d("PEDIDO", "Doc: ${doc.id} -> ${doc.data}")
+                    val disponible = doc.getBoolean("disponible") ?: true
+                    if (disponible) {
+                        listaProductos.add(
+                            Producto(
+                                id = doc.id,
+                                nombre = doc.getString("nombre") ?: "",
+                                precio = doc.getDouble("precio") ?: 0.0,
+                                categoria = doc.getString("categoria") ?: "",
+                                disponible = true
+                            )
                         )
-                    )
+                    }
                 }
+                // Ordenar en memoria
+                listaProductos.sortBy { it.nombre }
+                Log.d("PEDIDO", "Productos disponibles cargados: ${listaProductos.size}")
                 productosAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                Log.e("PEDIDO", "Error: ${e.message}")
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
     private fun cargarMesas() {
         db.collection("mesas")
-            .whereEqualTo("estado", "libre")
-            .orderBy("numero")
             .get()
             .addOnSuccessListener { snapshot ->
+                Log.d("PEDIDO", "Total docs mesas: ${snapshot.size()}")
                 listaMesas.clear()
                 snapshot.documents.forEach { doc ->
-                    listaMesas.add(
-                        Mesa(
-                            id = doc.id,
-                            numero = (doc.getLong("numero") ?: 0).toInt(),
-                            capacidad = (doc.getLong("capacidad") ?: 0).toInt(),
-                            estado = "libre"
+                    Log.d("PEDIDO", "Mesa doc: ${doc.id} -> ${doc.data}")
+                    val estado = doc.getString("estado") ?: "libre"
+                    if (estado == "libre") {
+                        listaMesas.add(
+                            Mesa(
+                                id = doc.id,
+                                numero = (doc.getLong("numero") ?: 0).toInt(),
+                                capacidad = (doc.getLong("capacidad") ?: 0).toInt(),
+                                estado = "libre"
+                            )
                         )
-                    )
+                    }
                 }
-                val opciones = listaMesas.map { "Mesa ${it.numero} (cap. ${it.capacidad})" }
-                val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, opciones)
-                binding.spinnerMesa.setAdapter(adapter)
+                // Ordenar en memoria
+                listaMesas.sortBy { it.numero }
+                Log.d("PEDIDO", "Mesas libres cargadas: ${listaMesas.size}")
 
+                val opciones = listaMesas.map { "Mesa ${it.numero} (cap. ${it.capacidad})" }
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    opciones
+                )
+                binding.spinnerMesa.setAdapter(adapter)
                 binding.spinnerMesa.setOnItemClickListener { _, _, position, _ ->
                     mesaSeleccionada = listaMesas[position]
                 }
+            }
+            .addOnFailureListener { e ->
+                Log.e("PEDIDO", "Error mesas: ${e.message}")
+                Toast.makeText(this, "Error mesas: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 

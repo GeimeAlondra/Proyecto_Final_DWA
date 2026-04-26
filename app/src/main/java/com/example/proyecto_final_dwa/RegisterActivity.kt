@@ -56,15 +56,14 @@ class RegisterActivity : AppCompatActivity() {
             "uid" to uid,
             "nombre" to nombre,
             "email" to email,
-            "rol" to "empleado", // 👈 todos los registros nuevos son empleados
+            "rol" to "admin", // Todos los registros nuevos son admins
             "fechaRegistro" to com.google.firebase.Timestamp.now()
         )
 
         db.collection("usuarios").document(uid).set(usuario)
             .addOnSuccessListener {
                 setLoading(false)
-                // Empleado recién registrado va a su dashboard
-                startActivity(Intent(this, DashboardEmpleadoActivity::class.java))
+                startActivity(Intent(this, DashboardAdminActivity::class.java))
                 finish()
             }
             .addOnFailureListener { e ->

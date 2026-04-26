@@ -1,6 +1,7 @@
 package com.example.proyecto_final_dwa
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -62,41 +63,50 @@ class PedidosActivosActivity : AppCompatActivity() {
 
         db.collection("pedidos")
             .whereEqualTo("empleadoId", uid)
-            .whereIn("estado", listOf("pendiente", "entregado"))
-            .orderBy("fecha", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error != null) return@addSnapshotListener
+                if (error != null) {
+                    Log.e("PEDIDOS", "Error: ${error.message}")
+                    return@addSnapshotListener
+                }
 
-                val nuevos = snapshot?.documents?.map { doc ->
-                    @Suppress("UNCHECKED_CAST")
-                    val itemsRaw = doc.get("items") as? List<Map<String, Any>> ?: emptyList()
-                    val items = itemsRaw.map { map ->
-                        ItemPedido(
-                            productoId = map["productoId"] as? String ?: "",
-                            nombre = map["nombre"] as? String ?: "",
-                            precio = (map["precio"] as? Double) ?: 0.0,
-                            cantidad = ((map["cantidad"] as? Long) ?: 0).toInt()
-                        )
+                val nuevos = snapshot?.documents
+                    ?.filter { doc ->
+                        val estado = doc.getString("estado") ?: ""
+                        estado == "pendiente" || estado == "entregado"
                     }
-                    Pedido(
-                        id = doc.id,
-                        empleadoId = doc.getString("empleadoId") ?: "",
-                        empleadoNombre = doc.getString("empleadoNombre") ?: "",
-                        tipo = doc.getString("tipo") ?: "mesa",
-                        mesaId = doc.getString("mesaId") ?: "",
-                        mesaNumero = (doc.getLong("mesaNumero") ?: 0).toInt(),
-                        clienteNombre = doc.getString("clienteNombre") ?: "",
-                        estado = doc.getString("estado") ?: "pendiente",
-                        items = items,
-                        total = doc.getDouble("total") ?: 0.0,
-                        fecha = doc.getTimestamp("fecha")
-                    )
-                } ?: emptyList()
+                    ?.map { doc ->
+                        @Suppress("UNCHECKED_CAST")
+                        val itemsRaw = doc.get("items") as? List<Map<String, Any>> ?: emptyList()
+                        val items = itemsRaw.map { map ->
+                            ItemPedido(
+                                productoId = map["productoId"] as? String ?: "",
+                                nombre = map["nombre"] as? String ?: "",
+                                precio = (map["precio"] as? Double) ?: 0.0,
+                                cantidad = ((map["cantidad"] as? Long) ?: 0).toInt()
+                            )
+                        }
+                        Pedido(
+                            id = doc.id,
+                            empleadoId = doc.getString("empleadoId") ?: "",
+                            empleadoNombre = doc.getString("empleadoNombre") ?: "",
+                            tipo = doc.getString("tipo") ?: "mesa",
+                            mesaId = doc.getString("mesaId") ?: "",
+                            mesaNumero = (doc.getLong("mesaNumero") ?: 0).toInt(),
+                            clienteNombre = doc.getString("clienteNombre") ?: "",
+                            estado = doc.getString("estado") ?: "pendiente",
+                            items = items,
+                            total = doc.getDouble("total") ?: 0.0,
+                            fecha = doc.getTimestamp("fecha")
+                        )
+                    } ?: emptyList()
 
-                adapter.actualizar(nuevos)
-                binding.tvContador.text = "${nuevos.size} activos"
+                // Ordenar por fecha descendente en memoria
+                val ordenados = nuevos.sortedByDescending { it.fecha?.seconds }
+
+                adapter.actualizar(ordenados)
+                binding.tvContador.text = "${ordenados.size} activos"
                 binding.layoutVacio.visibility =
-                    if (nuevos.isEmpty()) View.VISIBLE else View.GONE
+                    if (ordenados.isEmpty()) View.VISIBLE else View.GONE
             }
     }
 

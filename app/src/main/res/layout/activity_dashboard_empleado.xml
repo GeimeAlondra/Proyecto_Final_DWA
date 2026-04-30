@@ -79,21 +79,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PEDIDOS"
-                android:textColor="@color/warm_gray"
-                android:textSize="11sp"
-                android:letterSpacing="0.2"
-                android:layout_marginBottom="12dp"/>
-
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardNuevoPedido"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="100dp"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/gold"
+                app:cardBackgroundColor="@color/charcoal"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 android:clickable="true"
@@ -108,9 +99,9 @@
                     android:paddingHorizontal="20dp">
 
                     <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/circle_charcoal"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/circle_gold"
                         android:layout_marginEnd="16dp">
 
                         <TextView
@@ -131,7 +122,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Nuevo pedido"
-                            android:textColor="@color/charcoal"
+                            android:textColor="@color/white"
                             android:textSize="18sp"
                             android:textStyle="bold"/>
 
@@ -139,7 +130,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Mesa o para llevar"
-                            android:textColor="@color/charcoal_light"
+                            android:textColor="@color/warm_gray"
                             android:textSize="13sp"/>
                     </LinearLayout>
 
@@ -147,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="›"
-                        android:textColor="@color/charcoal"
+                        android:textColor="@color/gold"
                         android:textSize="28sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -156,7 +147,7 @@
                 android:id="@+id/cardPedidosActivos"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="12dp"
                 app:cardBackgroundColor="@color/charcoal"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
@@ -225,6 +216,70 @@
                         android:text="›"
                         android:textColor="@color/gold"
                         android:textSize="28sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHistorial"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/charcoal"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp">
+
+                    <FrameLayout
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@drawable/circle_gold">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="📋"
+                            android:textSize="22sp" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Historial"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pedidos completados"
+                            android:textColor="@color/warm_gray"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="›"
+                        android:textColor="@color/gold"
+                        android:textSize="28sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

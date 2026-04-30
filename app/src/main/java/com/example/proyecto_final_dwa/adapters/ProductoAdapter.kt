@@ -38,7 +38,7 @@ class ProductoAdapter(
                 root.context.getColor(R.color.warm_gray)
             viewDisponible.setBackgroundColor(color)
 
-            tvDisponible.text = if (producto.disponible) "✓ Disponible" else "✗ No disponible"
+            tvDisponible.text = if (producto.disponible) "Disponible" else "No disponible"
             tvDisponible.setTextColor(color)
 
 

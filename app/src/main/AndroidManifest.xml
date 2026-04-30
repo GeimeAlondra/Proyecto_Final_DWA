@@ -31,6 +31,7 @@
         <activity android:name=".EmpleadoForm" />
         <activity android:name=".NuevoPedidoActivity"/>
         <activity android:name=".PedidosActivosActivity"/>
+        <activity android:name=".HistorialPedidosActivity"/>
     </application>
 
 </manifest>

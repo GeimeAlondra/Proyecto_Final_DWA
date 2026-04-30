@@ -67,6 +67,10 @@ class DashboardEmpleadoActivity : AppCompatActivity() {
         binding.cardPedidosActivos.setOnClickListener {
             startActivity(Intent(this, PedidosActivosActivity::class.java))
         }
+
+        binding.cardHistorial.setOnClickListener {
+            startActivity(Intent(this, HistorialPedidosActivity::class.java))
+        }
     }
 
     private fun setupLogout() {

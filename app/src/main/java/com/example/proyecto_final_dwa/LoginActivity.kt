@@ -2,6 +2,7 @@ package com.example.proyecto_final_dwa
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -56,9 +57,14 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
 
-        binding.tvGoToRegister.setOnClickListener {
+        binding.tvLogo.setOnLongClickListener {
+            Toast.makeText(this, "Acceso administrativo", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, RegisterActivity::class.java))
+            true
         }
+
+        // Quitar el link visible de registro
+        binding.tvGoToRegister.visibility = View.GONE
     }
 
     private fun redirigirPorRol(uid: String) {

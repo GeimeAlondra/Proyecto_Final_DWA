@@ -2,6 +2,7 @@ package com.example.proyecto_final_dwa
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -68,28 +69,60 @@ class MesaActivity : AppCompatActivity() {
 
                 listaTodas.clear()
                 snapshot?.documents?.forEach { doc ->
+                    val estado = doc.getString("estado") ?: "libre"
+                    Log.d("MESAS", "Mesa ${doc.getLong("numero")} -> estado: $estado")
                     listaTodas.add(
                         Mesa(
                             id = doc.id,
                             numero = (doc.getLong("numero") ?: 0).toInt(),
                             capacidad = (doc.getLong("capacidad") ?: 0).toInt(),
-                            estado = doc.getString("estado") ?: "libre"
+                            estado = estado
                         )
                     )
                 }
-                aplicarFiltro()
+                val filtrosActivos = mutableListOf<String>()
+                if (binding.chipLibres.isChecked) filtrosActivos.add("libre")
+                if (binding.chipOcupadas.isChecked) filtrosActivos.add("ocupada")
+                aplicarFiltro(filtrosActivos)
             }
     }
 
     private fun setupFiltros() {
-        binding.chipTodas.setOnClickListener { filtroActual = "todas"; aplicarFiltro() }
-        binding.chipLibres.setOnClickListener { filtroActual = "libre"; aplicarFiltro() }
-        binding.chipOcupadas.setOnClickListener { filtroActual = "ocupada"; aplicarFiltro() }
+        val listener = { _: Any ->
+            val filtrosActivos = mutableListOf<String>()
+            if (binding.chipLibres.isChecked) filtrosActivos.add("libre")
+            if (binding.chipOcupadas.isChecked) filtrosActivos.add("ocupada")
+            aplicarFiltro(filtrosActivos)
+        }
+
+        binding.chipTodas.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Deseleccionar los demás
+                binding.chipLibres.isChecked = false
+                binding.chipOcupadas.isChecked = false
+                aplicarFiltro(emptyList()) // lista completa
+            }
+        }
+
+        binding.chipLibres.setOnCheckedChangeListener { _, _ ->
+            binding.chipTodas.isChecked = false
+            listener(Unit)
+        }
+
+        binding.chipOcupadas.setOnCheckedChangeListener { _, _ ->
+            binding.chipTodas.isChecked = false
+            listener(Unit)
+        }
     }
 
-    private fun aplicarFiltro() {
-        val resultado = if (filtroActual == "todas") listaTodas
-        else listaTodas.filter { it.estado == filtroActual }
+    private fun aplicarFiltro(filtros: List<String>) {
+        val resultado = if (filtros.isEmpty()) {
+            // Sin filtros activos o "Todas" seleccionado
+            listaTodas.toList()
+        } else {
+            // Filtrar por todos los estados seleccionados
+            listaTodas.filter { it.estado in filtros }
+        }
 
         listaFiltrada.clear()
         listaFiltrada.addAll(resultado)

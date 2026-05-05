@@ -23,11 +23,8 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Si ya hay sesión activa, redirigir directo por rol
-        auth.currentUser?.let {
-            redirigirPorRol(it.uid)
-            return
-        }
+        // Cerrar sesión siempre al arrancar la app
+        auth.signOut()
 
         setupListeners()
     }
@@ -71,6 +68,19 @@ class LoginActivity : AppCompatActivity() {
         db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { doc ->
                 setLoading(false)
+
+                // Verificar si está activo
+                val activo = doc.getBoolean("activo") ?: true
+                if (!activo) {
+                    auth.signOut()
+                    Toast.makeText(
+                        this,
+                        "Tu cuenta ha sido desactivada. Contacta al administrador.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
                 when (doc.getString("rol")) {
                     "admin" -> {
                         startActivity(Intent(this, DashboardAdminActivity::class.java))
@@ -81,7 +91,6 @@ class LoginActivity : AppCompatActivity() {
                         finish()
                     }
                     else -> {
-                        // Rol desconocido o documento no existe
                         auth.signOut()
                         Toast.makeText(
                             this,

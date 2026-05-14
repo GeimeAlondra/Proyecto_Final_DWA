@@ -65,4 +65,16 @@ class ProductoAdapter(
         lista.addAll(nuevaLista)
         notifyDataSetChanged()
     }
+
+    fun filtrar(query: String, listaOriginal: List<Producto>) {
+        val resultado = if (query.isEmpty()) listaOriginal
+        else listaOriginal.filter {
+            it.nombre.contains(query, ignoreCase = true) ||
+                    it.categoria.contains(query, ignoreCase = true) ||
+                    it.descripcion.contains(query, ignoreCase = true)
+        }
+        lista.clear()
+        lista.addAll(resultado)
+        notifyDataSetChanged()
+    }
 }

@@ -17,6 +17,7 @@ class ProductoActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var adapter: ProductoAdapter
     private val listaProductos = mutableListOf<Producto>()
+    private val listaTodos = mutableListOf<Producto>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +28,7 @@ class ProductoActivity : AppCompatActivity() {
 
         setupRecycler()
         cargarProductos()
+        setupBuscador()
 
         binding.fabAgregar.setOnClickListener {
             startActivity(Intent(this, ProductoForm::class.java))
@@ -63,30 +65,32 @@ class ProductoActivity : AppCompatActivity() {
 
     private fun cargarProductos() {
         db.collection("productos")
-            .orderBy("nombre")
             .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Toast.makeText(this, "Error al cargar: ${error.message}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
+                if (error != null) return@addSnapshotListener
 
-                val nuevaLista = snapshot?.documents?.map { doc ->
-                    Producto(
-                        id = doc.id,
-                        nombre = doc.getString("nombre") ?: "",
-                        descripcion = doc.getString("descripcion") ?: "",
-                        precio = doc.getDouble("precio") ?: 0.0,
-                        categoria = doc.getString("categoria") ?: "",
-                        disponible = doc.getBoolean("disponible") ?: true
+                listaTodos.clear()
+                snapshot?.documents?.forEach { doc ->
+                    val disponible = doc.getBoolean("disponible") ?: true
+                    listaTodos.add(
+                        Producto(
+                            id = doc.id,
+                            nombre = doc.getString("nombre") ?: "",
+                            descripcion = doc.getString("descripcion") ?: "",
+                            precio = doc.getDouble("precio") ?: 0.0,
+                            categoria = doc.getString("categoria") ?: "",
+                            disponible = disponible
+                        )
                     )
-                } ?: emptyList()
+                }
+                listaTodos.sortBy { it.nombre }
 
-                adapter.actualizar(nuevaLista)
+                // Aplicar búsqueda activa si hay texto
+                val query = binding.etBuscar.text.toString()
+                adapter.filtrar(query, listaTodos)
 
-                // Estado vacío
-                binding.tvContador.text = "${nuevaLista.size} items"
+                binding.tvContador.text = "${listaTodos.size} items"
                 binding.layoutVacio.visibility =
-                    if (nuevaLista.isEmpty()) View.VISIBLE else View.GONE
+                    if (listaTodos.isEmpty()) View.VISIBLE else View.GONE
             }
     }
 
@@ -99,6 +103,18 @@ class ProductoActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error al eliminar: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun setupBuscador() {
+        binding.etBuscar.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                adapter.filtrar(s.toString(), listaTodos)
+                binding.layoutVacio.visibility =
+                    if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
     }
 
     override fun onResume() {

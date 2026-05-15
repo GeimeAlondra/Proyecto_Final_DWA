@@ -115,7 +115,7 @@
                 style="@style/RestaurantInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contraseña temporal"
+                android:hint="Contraseña"
                 android:layout_marginBottom="16dp"
                 app:passwordToggleEnabled="true">
 

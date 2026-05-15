@@ -2,6 +2,7 @@ package com.example.proyecto_final_dwa
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +27,7 @@ class DashboardEmpleadoActivity : AppCompatActivity() {
         cargarContadorPedidos()
         setupCards()
         setupLogout()
+        escucharEstadoCuenta()
     }
 
     private fun cargarNombre() {
@@ -86,5 +88,26 @@ class DashboardEmpleadoActivity : AppCompatActivity() {
                 .setNegativeButton("Cancelar", null)
                 .show()
         }
+    }
+
+    private fun escucharEstadoCuenta() {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("usuarios").document(uid)
+            .addSnapshotListener { doc, error ->
+                if (error != null) return@addSnapshotListener
+
+                val activo = doc?.getBoolean("activo") ?: true
+                if (!activo) {
+                    auth.signOut()
+                    Toast.makeText(
+                        this,
+                        "Tu cuenta ha sido desactivada. Contacta al administrador.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+            }
     }
 }

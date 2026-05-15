@@ -48,6 +48,7 @@ class EmpleadoActivity : AppCompatActivity() {
                 intent.putExtra("telefono", empleado.telefono)
                 intent.putExtra("puesto", empleado.puesto)
                 intent.putExtra("activo", empleado.activo)
+                intent.putExtra("password", empleado.password)
                 startActivity(intent)
             },
             onEliminar = { empleado ->
@@ -78,7 +79,8 @@ class EmpleadoActivity : AppCompatActivity() {
                             email = doc.getString("email") ?: "",
                             telefono = doc.getString("telefono") ?: "",
                             puesto = doc.getString("puesto") ?: "",
-                            activo = doc.getBoolean("activo") ?: true
+                            activo = doc.getBoolean("activo") ?: true,
+                            password = doc.getString("password") ?: ""
                         )
                     )
                 }

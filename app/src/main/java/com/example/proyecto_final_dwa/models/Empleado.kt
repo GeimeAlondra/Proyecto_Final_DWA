@@ -6,5 +6,6 @@ data class Empleado(
     val email: String = "",
     val telefono: String = "",
     val puesto: String = "",
-    val activo: Boolean = true
+    val activo: Boolean = true,
+    val password: String = ""
 )

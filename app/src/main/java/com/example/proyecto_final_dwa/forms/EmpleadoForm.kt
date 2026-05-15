@@ -4,20 +4,21 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.proyecto_final_dwa.databinding.FormEmpleadoBinding
-import com.google.firebase.FirebaseApp
 
 class EmpleadoForm : AppCompatActivity() {
 
     private lateinit var binding: FormEmpleadoBinding
     private lateinit var db: FirebaseFirestore
-    private lateinit var authPrincipal: FirebaseAuth  // Sesión del admin
+    private lateinit var authPrincipal: FirebaseAuth
     private var empleadoId: String? = null
 
     private val puestos = listOf(
-        "Mesero", "Cocinero", "Cajero", "Bartender", "Supervisor", "Gerente"
+        "Mesero", "Cocinero", "Cajero",
+        "Bartender", "Host / Hostess", "Supervisor", "Gerente"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,12 +51,12 @@ class EmpleadoForm : AppCompatActivity() {
             binding.spinnerPuesto.setText(intent.getStringExtra("puesto"), false)
             binding.switchActivo.isChecked = intent.getBooleanExtra("activo", true)
 
-            // Email y contraseña no se modifican
+            // Email no editable en modo edición
             binding.etEmail.isEnabled = false
             binding.tilEmail.alpha = 0.6f
-            binding.etPassword.isEnabled = false
-            binding.tilPassword.alpha = 0.6f
-            binding.tilPassword.hint = "Contraseña (no editable)"
+
+            // Contraseña opcional en edición
+            binding.tilPassword.hint = "Nueva contraseña (opcional)"
 
             binding.btnGuardar.text = "Actualizar Empleado"
         }
@@ -69,11 +70,16 @@ class EmpleadoForm : AppCompatActivity() {
         val puesto = binding.spinnerPuesto.text.toString().trim()
         val activo = binding.switchActivo.isChecked
 
-        // Validaciones
+        // Validaciones comunes
         if (nombre.isEmpty()) {
             binding.tilNombre.error = "Ingresa el nombre"; return
         } else binding.tilNombre.error = null
 
+        if (puesto.isEmpty() || !puestos.contains(puesto)) {
+            binding.tilPuesto.error = "Selecciona un puesto"; return
+        } else binding.tilPuesto.error = null
+
+        // Validaciones solo al crear
         if (empleadoId == null) {
             if (email.isEmpty()) {
                 binding.tilEmail.error = "Ingresa el correo"; return
@@ -84,16 +90,17 @@ class EmpleadoForm : AppCompatActivity() {
             } else binding.tilPassword.error = null
         }
 
-        if (puesto.isEmpty() || !puestos.contains(puesto)) {
-            binding.tilPuesto.error = "Selecciona un puesto"; return
-        } else binding.tilPuesto.error = null
+        // Validación de nueva contraseña al editar
+        if (empleadoId != null && password.isNotEmpty() && password.length < 6) {
+            binding.tilPassword.error = "Mínimo 6 caracteres"; return
+        } else binding.tilPassword.error = null
 
         setLoading(true)
 
         if (empleadoId == null) {
             crearEmpleadoConAuth(nombre, email, password, telefono, puesto, activo)
         } else {
-            actualizarEmpleado(nombre, telefono, puesto, activo)
+            actualizarEmpleado(nombre, telefono, puesto, activo, password)
         }
     }
 
@@ -127,6 +134,7 @@ class EmpleadoForm : AppCompatActivity() {
                         "puesto" to puesto,
                         "activo" to activo,
                         "rol" to "empleado",
+                        "password" to password, // guardado para reautenticar al editar
                         "fechaRegistro" to com.google.firebase.Timestamp.now()
                     )
 
@@ -135,14 +143,18 @@ class EmpleadoForm : AppCompatActivity() {
                             setLoading(false)
                             Toast.makeText(
                                 this,
-                                "Empleado creado\nEmail: $email\nContraseña: $password",
+                                "Empleado creado \nEmail: $email\nContraseña: $password",
                                 Toast.LENGTH_LONG
                             ).show()
                             finish()
                         }
                         .addOnFailureListener { e ->
                             setLoading(false)
-                            Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this,
+                                "Error al guardar: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                 } else {
                     setLoading(false)
@@ -155,19 +167,33 @@ class EmpleadoForm : AppCompatActivity() {
             }
     }
 
-    private fun actualizarEmpleado(nombre: String, telefono: String, puesto: String, activo: Boolean) {
-        val datos = mapOf(
+    private fun actualizarEmpleado(
+        nombre: String, telefono: String, puesto: String,
+        activo: Boolean, nuevaPassword: String
+    ) {
+        val datos = mutableMapOf<String, Any>(
             "nombre" to nombre,
             "telefono" to telefono,
             "puesto" to puesto,
             "activo" to activo
         )
+
         db.collection("usuarios").document(empleadoId!!)
             .update(datos)
             .addOnSuccessListener {
-                setLoading(false)
-                Toast.makeText(this, "Empleado actualizado", Toast.LENGTH_SHORT).show()
-                finish()
+                if (nuevaPassword.isNotEmpty()) {
+                    val email = intent.getStringExtra("email") ?: run {
+                        setLoading(false)
+                        Toast.makeText(this, "Empleado actualizado", Toast.LENGTH_SHORT).show()
+                        finish()
+                        return@addOnSuccessListener
+                    }
+                    cambiarPasswordEmpleado(email, nuevaPassword)
+                } else {
+                    setLoading(false)
+                    Toast.makeText(this, "Empleado actualizado", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
             .addOnFailureListener { e ->
                 setLoading(false)
@@ -175,9 +201,88 @@ class EmpleadoForm : AppCompatActivity() {
             }
     }
 
+    private fun cambiarPasswordEmpleado(
+        email: String, nuevaPassword: String
+    ) {
+        val secondaryApp = try {
+            FirebaseApp.getInstance("secondary")
+        } catch (e: Exception) {
+            FirebaseApp.initializeApp(
+                this,
+                FirebaseApp.getInstance().options,
+                "secondary"
+            )
+        }
+
+        val authSecundario = FirebaseAuth.getInstance(secondaryApp!!)
+
+        db.collection("usuarios").document(empleadoId!!)
+            .get()
+            .addOnSuccessListener { doc ->
+                val passwordActual = doc.getString("password") ?: run {
+                    setLoading(false)
+                    Toast.makeText(this, "No se encontró la contraseña actual", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+
+                authSecundario.signInWithEmailAndPassword(email, passwordActual)
+                    .addOnSuccessListener {
+                        // Primero cambiar en Authentication
+                        authSecundario.currentUser!!.updatePassword(nuevaPassword)
+                            .addOnSuccessListener {
+                                authSecundario.signOut()
+                                // Solo si Authentication fue exitoso, actualizar Firestore
+                                db.collection("usuarios").document(empleadoId!!)
+                                    .update("password", nuevaPassword)
+                                    .addOnSuccessListener {
+                                        setLoading(false)
+                                        Toast.makeText(
+                                            this,
+                                            "Contraseña actualizada",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        finish()
+                                    }
+                                    .addOnFailureListener {
+                                        setLoading(false)
+                                        Toast.makeText(
+                                            this,
+                                            "Contraseña cambiada pero hubo un error al guardar. Edita de nuevo.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        finish()
+                                    }
+                            }
+                            .addOnFailureListener { e ->
+                                authSecundario.signOut()
+                                setLoading(false)
+                                Toast.makeText(
+                                    this,
+                                    "Error al cambiar contraseña: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        authSecundario.signOut()
+                        setLoading(false)
+                        android.util.Log.e("PASSWORD_DEBUG", "Auth falló: ${e.message}")
+                        Toast.makeText(
+                            this,
+                            "Error de autenticación: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                setLoading(false)
+                Toast.makeText(this, "Error al leer datos: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
     private fun setLoading(isLoading: Boolean) {
         binding.btnGuardar.isEnabled = !isLoading
         binding.btnGuardar.text = if (isLoading) "Guardando..."
-        else if (empleadoId == null) "Guardar empleado" else "Actualizar empleado"
+        else if (empleadoId == null) "Guardar Empleado" else "Actualizar Empleado"
     }
 }

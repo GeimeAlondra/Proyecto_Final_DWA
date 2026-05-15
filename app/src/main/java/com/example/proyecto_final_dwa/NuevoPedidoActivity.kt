@@ -1,5 +1,6 @@
 package com.example.proyecto_final_dwa
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -42,6 +43,7 @@ class NuevoPedidoActivity : AppCompatActivity() {
         cargarProductos()
         cargarMesas()
         setupTipoPedido()
+        escucharEstadoCuenta()
 
         binding.btnBack.setOnClickListener { finish() }
         binding.btnConfirmar.setOnClickListener { confirmarPedido() }
@@ -282,6 +284,29 @@ class NuevoPedidoActivity : AppCompatActivity() {
                         binding.btnConfirmar.text = "Confirmar Pedido"
                         Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                     }
+            }
+    }
+
+    private fun escucharEstadoCuenta() {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("usuarios").document(uid)
+            .addSnapshotListener { doc, error ->
+                if (error != null) return@addSnapshotListener
+
+                val activo = doc?.getBoolean("activo") ?: true
+                if (!activo) {
+                    auth.signOut()
+                    Toast.makeText(
+                        this,
+                        "Tu cuenta ha sido desactivada. El pedido en curso no fue guardado.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
             }
     }
 }

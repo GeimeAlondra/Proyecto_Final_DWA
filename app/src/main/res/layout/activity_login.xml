@@ -33,8 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SALAMI'S
-            RESTAURANT"
+            android:text="SALAMI'S RESTAURANT"
             android:textSize="22sp"
             android:textAlignment="center"
             android:textColor="@color/charcoal"

@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.proyecto_final_dwa.databinding.ActivityEmpleadoBinding
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 class EmpleadoActivity : AppCompatActivity() {
 
@@ -108,15 +110,76 @@ class EmpleadoActivity : AppCompatActivity() {
     }
 
     private fun eliminarEmpleado(empleado: Empleado) {
-        // Solo elimina el documento de Firestore
-        // La cuenta de Authentication se mantiene (requeriría Admin SDK para borrarla)
+        // Primero obtener la contraseña actual de Firestore
+        db.collection("usuarios").document(empleado.id)
+            .get()
+            .addOnSuccessListener { doc ->
+                val password = doc.getString("password") ?: ""
+
+                if (password.isEmpty()) {
+                    // Si no tiene contraseña guardada, solo eliminar de Firestore
+                    eliminarSoloDeFirestore(empleado)
+                    return@addOnSuccessListener
+                }
+
+                val secondaryApp = try {
+                    FirebaseApp.getInstance("secondary")
+                } catch (e: Exception) {
+                    FirebaseApp.initializeApp(
+                        this,
+                        FirebaseApp.getInstance().options,
+                        "secondary"
+                    )
+                }
+
+                val authSecundario = FirebaseAuth.getInstance(secondaryApp!!)
+
+                // Autenticar al empleado en instancia secundaria
+                authSecundario.signInWithEmailAndPassword(empleado.email, password)
+                    .addOnSuccessListener {
+                        // Eliminar cuenta de Authentication
+                        authSecundario.currentUser!!.delete()
+                            .addOnSuccessListener {
+                                authSecundario.signOut()
+                                // Después eliminar de Firestore
+                                eliminarSoloDeFirestore(empleado)
+                            }
+                            .addOnFailureListener { e ->
+                                authSecundario.signOut()
+                                Toast.makeText(
+                                    this,
+                                    "Error al eliminar cuenta: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        // Si falla la autenticación igual eliminar de Firestore
+                        Toast.makeText(
+                            this,
+                            "No se pudo eliminar la cuenta de acceso: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        eliminarSoloDeFirestore(empleado)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun eliminarSoloDeFirestore(empleado: Empleado) {
         db.collection("usuarios").document(empleado.id)
             .delete()
             .addOnSuccessListener {
-                Toast.makeText(this, "\"${empleado.nombre}\" eliminado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "\"${empleado.nombre}\" eliminado",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al eliminar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
